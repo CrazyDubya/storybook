@@ -31,7 +31,7 @@ const DemoPage = () => {
   };
 
   const handleFormSubmit = (data: any) => {
-    console.log('Form submitted:', data);
+    action('form-submitted')('Form submitted:', data);
     addNotification('Form submitted successfully!');
     setShowFormModal(false);
     action('form-submitted')(data);
