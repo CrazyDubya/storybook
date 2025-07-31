@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storybook Demo Components Preview</title>
+    <style>
+        /* Import our component styles */
+        body {
+            font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            margin: 0 0 16px 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .section h2 {
+            color: white;
+            margin-top: 0;
+            font-size: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        /* Button Styles */
+        .storybook-button {
+            font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 700;
+            border: 0;
+            border-radius: 3em;
+            cursor: pointer;
+            display: inline-block;
+            line-height: 1;
+        }
+        .storybook-button--primary {
+            color: white;
+            background-color: #1ea7fd;
+        }
+        .storybook-button--secondary {
+            color: #333;
+            background-color: transparent;
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
+        }
+        .storybook-button--small {
+            font-size: 12px;
+            padding: 10px 16px;
+        }
+        .storybook-button--medium {
+            font-size: 14px;
+            padding: 11px 20px;
+        }
+        .storybook-button--large {
+            font-size: 16px;
+            padding: 12px 24px;
+        }
+        
+        /* Card Styles */
+        .demo-card {
+            background: #ffffff;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+        }
+        .demo-card--elevated {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .demo-card--featured {
+            border: 2px solid #1ea7fd;
+            background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+        }
+        .demo-card__content {
+            padding: 20px;
+        }
+        .demo-card__title {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .demo-card__description {
+            margin: 0 0 16px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+        }
+        .demo-card__actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* Component showcase */
+        .component-showcase {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .feature-list {
+            color: white;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .feature-list li {
+            margin-bottom: 8px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Storybook Demo Showcase</h1>
+            <p>A comprehensive demonstration of interactive UI components built with React and Storybook</p>
+        </header>
+        
+        <section class="section">
+            <h2>🎯 Demo Overview</h2>
+            <p style="color: white; font-size: 1.1rem; line-height: 1.6;">
+                This demo showcases a complete component library with <strong>4 comprehensive React components</strong> 
+                and <strong>20+ interactive stories</strong> demonstrating best practices for component development, 
+                testing, and documentation in Storybook.
+            </p>
+        </section>
+        
+        <section class="section">
+            <h2>🔘 Button Component</h2>
+            <div class="component-showcase">
+                <div>
+                    <p style="color: white; margin-bottom: 16px;">Multiple sizes and variants:</p>
+                    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                        <button class="storybook-button storybook-button--small storybook-button--primary">Small</button>
+                        <button class="storybook-button storybook-button--medium storybook-button--primary">Medium</button>
+                        <button class="storybook-button storybook-button--large storybook-button--primary">Large</button>
+                        <button class="storybook-button storybook-button--medium storybook-button--secondary">Secondary</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>📄 Card Component</h2>
+            <div class="grid">
+                <div class="demo-card demo-card--elevated">
+                    <div class="demo-card__content">
+                        <h3 class="demo-card__title">Default Card</h3>
+                        <p class="demo-card__description">A basic card with default styling and elevation shadow for subtle depth.</p>
+                        <div class="demo-card__actions">
+                            <button class="storybook-button storybook-button--small storybook-button--primary">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-card demo-card--featured demo-card--elevated">
+                    <div class="demo-card__content">
+                        <h3 class="demo-card__title">Featured Card</h3>
+                        <p class="demo-card__description">A featured card with special styling to draw attention and highlight important content.</p>
+                        <div class="demo-card__actions">
+                            <button class="storybook-button storybook-button--small storybook-button--primary">Get Started</button>
+                            <button class="storybook-button storybook-button--small storybook-button--secondary">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>🏗️ Advanced Features</h2>
+            <div class="grid">
+                <div>
+                    <h3 style="color: white; margin-bottom: 16px;">📝 Form Component</h3>
+                    <ul class="feature-list">
+                        <li>✅ Multiple field types (text, email, select, textarea, checkbox)</li>
+                        <li>✅ Built-in and custom validation</li>
+                        <li>✅ Vertical and horizontal layouts</li>
+                        <li>✅ Theme variants (default, modern, minimal)</li>
+                        <li>✅ Real-time validation feedback</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 style="color: white; margin-bottom: 16px;">🪟 Modal Component</h3>
+                    <ul class="feature-list">
+                        <li>✅ Multiple sizes (small, medium, large, fullscreen)</li>
+                        <li>✅ Theme variants (default, dark, glass effect)</li>
+                        <li>✅ Accessibility features (focus management, keyboard navigation)</li>
+                        <li>✅ Backdrop click and escape key handling</li>
+                        <li>✅ Custom footer content support</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>🚀 Storybook Features Demonstrated</h2>
+            <div class="grid">
+                <div>
+                    <h3 style="color: white; margin-bottom: 16px;">Testing & Quality</h3>
+                    <ul class="feature-list">
+                        <li>Interaction testing with user events <span class="status-badge">✓</span></li>
+                        <li>Accessibility testing with a11y addon <span class="status-badge">✓</span></li>
+                        <li>Visual regression testing <span class="status-badge">✓</span></li>
+                        <li>Performance testing with multiple instances <span class="status-badge">✓</span></li>
+                        <li>Keyboard navigation validation <span class="status-badge">✓</span></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 style="color: white; margin-bottom: 16px;">Documentation & UX</h3>
+                    <ul class="feature-list">
+                        <li>Auto-generated controls for all props <span class="status-badge">✓</span></li>
+                        <li>Interactive actions logging <span class="status-badge">✓</span></li>
+                        <li>Comprehensive documentation <span class="status-badge">✓</span></li>
+                        <li>Real-world usage examples <span class="status-badge">✓</span></li>
+                        <li>Responsive design showcase <span class="status-badge">✓</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>🎪 Complete Demo Scenario</h2>
+            <p style="color: white; font-size: 1.1rem; line-height: 1.6; margin-bottom: 24px;">
+                The <strong>DemoShowcase</strong> story presents a full application-like experience combining all components:
+            </p>
+            <ul class="feature-list">
+                <li>🏠 Landing page with hero section and call-to-action buttons</li>
+                <li>🎯 Feature grid showcasing different card variants and interactions</li>
+                <li>🔄 Real-time state management between components</li>
+                <li>📱 Modal workflows for forms and detailed information</li>
+                <li>🔔 Notification system for user feedback</li>
+                <li>⌨️ Full keyboard navigation and accessibility support</li>
+                <li>📱 Responsive design that works on all screen sizes</li>
+            </ul>
+        </section>
+        
+        <section class="section">
+            <h2>📖 Getting Started</h2>
+            <div style="color: white; font-size: 1.1rem; line-height: 1.6;">
+                <p><strong>To explore the full interactive demo:</strong></p>
+                <ol style="margin: 16px 0;">
+                    <li>Navigate to the Storybook interface</li>
+                    <li>Browse individual component stories in the sidebar</li>
+                    <li>Visit "Demo/Complete Showcase" for the full experience</li>
+                    <li>Use the Controls panel to modify component properties</li>
+                    <li>Check the Actions panel to see event logging</li>
+                    <li>Test accessibility features with the a11y addon</li>
+                </ol>
+                <p>This demo serves as both a showcase of capabilities and a reference implementation for building production-ready component libraries with Storybook.</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
