@@ -55,6 +55,7 @@ export const CSF2Secondary = Template.bind({});
 CSF2Secondary.args = {
   children: 'Children coming from story args!',
   primary: false,
+  onClick: action('button-clicked'),
 };
 
 const getCaptionForLocale = (locale: string) => {
@@ -118,7 +119,10 @@ export const CSF3Primary: CSF3Story<ButtonProps> = {
 };
 
 export const CSF3Button: CSF3Story<ButtonProps> = {
-  args: { children: 'foo' },
+  args: { 
+    children: 'Click me!',
+    onClick: action('button-clicked'),
+  },
 };
 
 export const CSF3ButtonWithRender: CSF3Story<ButtonProps> = {
