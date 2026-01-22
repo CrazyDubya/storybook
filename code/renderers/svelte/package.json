@@ -66,7 +66,7 @@
     "svelte-check": "^4.1.4",
     "sveltedoc-parser": "^4.2.1",
     "typescript": "^5.8.3",
-    "vite": "^6.2.5"
+    "vite": "^6.4.1"
   },
   "peerDependencies": {
     "storybook": "workspace:^",
