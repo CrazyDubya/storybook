@@ -7,12 +7,18 @@ import {
 
 import { global } from '@storybook/global';
 
+import copy from 'copy-to-clipboard';
+
 import type { KeyboardEventLike } from '../lib/shortcut';
 import { eventToShortcut, shortcutMatchesShortcut } from '../lib/shortcut';
 import type { ModuleFn } from '../lib/types';
 import { focusableUIElements } from './layout';
 
 const { navigator, document } = global;
+
+function wasFocusInElement(element: HTMLElement | null) {
+  return document.activeElement && element?.contains(document.activeElement);
+}
 
 export const isMacLike = () =>
   navigator && navigator.platform ? !!navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) : false;
@@ -43,7 +49,9 @@ export interface SubAPI {
    * @param shortcuts The new shortcuts to set.
    * @returns A promise that resolves to the new shortcuts.
    */
-  setShortcuts(shortcuts: API_Shortcuts): Promise<API_Shortcuts>;
+  setShortcuts(
+    update: API_Shortcuts | ((shortcuts: API_Shortcuts) => API_Shortcuts)
+  ): Promise<API_Shortcuts>;
   /**
    * Sets the shortcut for the given action to the given value.
    *
@@ -110,6 +118,13 @@ export interface API_Shortcuts {
   collapseAll: API_KeyCollection;
   expandAll: API_KeyCollection;
   remount: API_KeyCollection;
+  openInEditor: API_KeyCollection;
+  openInIsolation: API_KeyCollection;
+  copyStoryLink: API_KeyCollection;
+  goToPreviousLandmark: API_KeyCollection;
+  goToNextLandmark: API_KeyCollection;
+  // TODO: bring this back once we want to add shortcuts for this
+  // copyStoryName: API_KeyCollection;
 }
 
 export type API_Action = keyof API_Shortcuts;
@@ -145,6 +160,13 @@ export const defaultShortcuts: API_Shortcuts = Object.freeze({
   collapseAll: [controlOrMetaKey(), 'shift', 'ArrowUp'],
   expandAll: [controlOrMetaKey(), 'shift', 'ArrowDown'],
   remount: ['alt', 'R'],
+  openInEditor: ['alt', 'shift', 'E'],
+  openInIsolation: ['alt', 'shift', 'I'],
+  copyStoryLink: ['alt', 'shift', 'L'],
+  goToPreviousLandmark: ['shift', 'F6'], // hardcoded in react-aria
+  goToNextLandmark: ['F6'], // hardcoded in react-aria
+  // TODO: bring this back once we want to add shortcuts for this
+  // copyStoryName: ['alt', 'shift', 'C'],
 });
 
 const addonsShortcuts: API_AddonShortcuts = {};
@@ -193,24 +215,25 @@ export const init: ModuleFn = ({ store, fullAPI, provider }) => {
 
       return defaults;
     },
-    async setShortcuts(shortcuts: API_Shortcuts) {
-      await store.setState({ shortcuts }, { persistence: 'permanent' });
+    async setShortcuts(update) {
+      const { shortcuts } = await store.setState(
+        (state) => ({ shortcuts: typeof update === 'function' ? update(state.shortcuts) : update }),
+        { persistence: 'permanent' }
+      );
       return shortcuts;
     },
     async restoreAllDefaultShortcuts() {
       return api.setShortcuts(api.getDefaultShortcuts() as API_Shortcuts);
     },
     async setShortcut(action, value) {
-      const shortcuts = api.getShortcutKeys();
-      await api.setShortcuts({ ...shortcuts, [action]: value });
+      await api.setShortcuts((shortcuts) => ({ ...shortcuts, [action]: value }));
       return value;
     },
     async setAddonShortcut(addon: string, shortcut: API_AddonShortcut) {
-      const shortcuts = api.getShortcutKeys();
-      await api.setShortcuts({
+      await api.setShortcuts((shortcuts) => ({
         ...shortcuts,
         [`${addon}-${shortcut.actionName}`]: shortcut.defaultShortcut,
-      });
+      }));
       addonsShortcuts[`${addon}-${shortcut.actionName}`] = shortcut;
       return shortcut;
     },
@@ -237,6 +260,8 @@ export const init: ModuleFn = ({ store, fullAPI, provider }) => {
       const {
         ui: { enableShortcuts },
         storyId,
+        refId,
+        viewMode,
       } = store.getState();
       if (!enableShortcuts) {
         return;
@@ -255,6 +280,11 @@ export const init: ModuleFn = ({ store, fullAPI, provider }) => {
           }
           break;
         }
+
+        // Handled by @react-aria/interactions and useLandmarkIndicator
+        case 'goToNextLandmark':
+        case 'goToPreviousLandmark':
+          break;
 
         case 'focusNav': {
           if (fullAPI.getIsFullscreen()) {
@@ -332,12 +362,46 @@ export const init: ModuleFn = ({ store, fullAPI, provider }) => {
         }
 
         case 'togglePanel': {
+          const wasPanelShown = fullAPI.getIsPanelShown();
+          const panelElement = document.getElementById(focusableUIElements.addonPanel);
+
           fullAPI.togglePanel();
+
+          if (wasPanelShown && wasFocusInElement(panelElement)) {
+            // poll: true always returns a Promise.
+            (
+              fullAPI.focusOnUIElement(focusableUIElements.showAddonPanel, {
+                poll: true,
+              }) as Promise<boolean>
+            ).then((success) => {
+              // Fallback to body for predictable behavior.
+              if (success === false) {
+                document.body.focus();
+              }
+            });
+          }
           break;
         }
 
         case 'toggleNav': {
+          const wasNavShown = fullAPI.getIsNavShown();
+          const sidebarElement = document.getElementById(focusableUIElements.sidebarRegion);
+
           fullAPI.toggleNav();
+
+          if (wasNavShown && wasFocusInElement(sidebarElement)) {
+            // poll: true always returns a Promise.
+            (
+              fullAPI.focusOnUIElement(focusableUIElements.showSidebar, {
+                poll: true,
+              }) as Promise<boolean>
+            ).then((success) => {
+              // Fallback to body for predictable behavior.
+              if (success === false) {
+                document.body.focus();
+              }
+            });
+          }
           break;
         }
 
@@ -377,6 +441,36 @@ export const init: ModuleFn = ({ store, fullAPI, provider }) => {
         }
         case 'remount': {
           fullAPI.emit(FORCE_REMOUNT, { storyId });
+          break;
+        }
+        case 'openInEditor': {
+          if (global.CONFIG_TYPE === 'DEVELOPMENT') {
+            fullAPI.openInEditor({
+              file: fullAPI.getCurrentStoryData().importPath,
+            });
+          }
+          break;
+        }
+        case 'openInIsolation': {
+          if (storyId && viewMode === 'story') {
+            const { previewHref } = fullAPI.getStoryHrefs(storyId, { refId });
+            window.open(previewHref, '_blank', 'noopener,noreferrer');
+          }
+          break;
+        }
+        // TODO: bring this back once we want to add shortcuts for this
+        // case 'copyStoryName': {
+        //   const storyData = fullAPI.getCurrentStoryData();
+        //   if (storyData.type === 'story') {
+        //     copy(storyData.exportName);
+        //   }
+        //   break;
+        // }
+        case 'copyStoryLink': {
+          if (storyId) {
+            const { managerHref } = fullAPI.getStoryHrefs(storyId, { refId });
+            copy(managerHref);
+          }
           break;
         }
         default:

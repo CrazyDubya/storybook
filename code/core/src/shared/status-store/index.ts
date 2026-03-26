@@ -1,8 +1,7 @@
-import type { StoryId } from 'storybook/internal/csf';
-
 import { StatusTypeIdMismatchError as ManagerStatusTypeIdMismatchError } from '../../manager-errors';
 import { StatusTypeIdMismatchError as PreviewStatusTypeIdMismatchError } from '../../preview-errors';
 import { StatusTypeIdMismatchError as ServerStatusTypeIdMismatchError } from '../../server-errors';
+import type { StoryId } from '../../types';
 import type { UniversalStore } from '../universal-store';
 import type { StoreOptions } from '../universal-store/types';
 import type { useUniversalStore as managerUseUniversalStore } from '../universal-store/use-universal-store-manager';
@@ -10,8 +9,11 @@ import type { useUniversalStore as managerUseUniversalStore } from '../universal
 export type StatusValue =
   | 'status-value:pending'
   | 'status-value:success'
-  | 'status-value:error'
+  | 'status-value:new'
+  | 'status-value:modified'
+  | 'status-value:affected'
   | 'status-value:warning'
+  | 'status-value:error'
   | 'status-value:unknown';
 
 export type StatusTypeId = string;

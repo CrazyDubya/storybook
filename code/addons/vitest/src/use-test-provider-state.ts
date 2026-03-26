@@ -9,7 +9,7 @@ import type {
 } from 'storybook/internal/types';
 
 import { store, testProviderStore } from '#manager-store';
-import { isEqual } from 'es-toolkit';
+import { isEqual } from 'es-toolkit/predicate';
 import {
   type API,
   experimental_useStatusStore,
@@ -20,7 +20,12 @@ import {
 import { ADDON_ID, STATUS_TYPE_ID_A11Y, STATUS_TYPE_ID_COMPONENT_TEST } from './constants';
 import type { StoreState } from './types';
 
-export type StatusValueToStoryIds = Record<StatusValue, StoryId[]>;
+type TestStatusValue = Extract<
+  StatusValue,
+  `status-value:${'pending' | 'success' | 'error' | 'warning' | 'unknown'}`
+>;
+
+export type StatusValueToStoryIds = Record<TestStatusValue, StoryId[]>;
 
 const statusValueToStoryIds = (
   allStatuses: StatusesByStoryIdAndTypeId,
@@ -43,7 +48,7 @@ const statusValueToStoryIds = (
     if (!status) {
       return;
     }
-    statusValueToStoryIdsMap[status.value].push(status.storyId);
+    statusValueToStoryIdsMap[status.value as TestStatusValue].push(status.storyId);
   });
 
   return statusValueToStoryIdsMap;
@@ -63,7 +68,6 @@ export const useTestProvider = (
   const testProviderState = experimental_useTestProviderStore((s) => s[ADDON_ID]);
   const [storeState, setStoreState] = experimental_useUniversalStore(store);
 
-  // this follows the same behavior for the green border around the whole testing module in TestingModule.tsx
   const [isSettingsUpdated, setIsSettingsUpdated] = useState(false);
   const settingsUpdatedTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {

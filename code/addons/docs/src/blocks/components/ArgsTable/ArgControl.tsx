@@ -6,7 +6,6 @@ import { Link } from 'storybook/internal/components';
 import {
   BooleanControl,
   ColorControl,
-  type ControlProps,
   DateControl,
   FilesControl,
   NumberControl,
@@ -22,6 +21,7 @@ export interface ArgControlProps {
   arg: any;
   updateArgs: (args: Args) => void;
   isHovered: boolean;
+  storyId?: string;
 }
 
 const Controls: Record<string, FC<any>> = {
@@ -44,7 +44,7 @@ const Controls: Record<string, FC<any>> = {
 
 const NoControl = () => <>-</>;
 
-export const ArgControl: FC<ArgControlProps> = ({ row, arg, updateArgs, isHovered }) => {
+export const ArgControl: FC<ArgControlProps> = ({ row, arg, updateArgs, isHovered, storyId }) => {
   const { key, control } = row;
 
   const [isFocused, setFocused] = useState(false);
@@ -72,7 +72,11 @@ export const ArgControl: FC<ArgControlProps> = ({ row, arg, updateArgs, isHovere
   if (!control || control.disable) {
     const canBeSetup = control?.disable !== true && row?.type?.name !== 'function';
     return isHovered && canBeSetup ? (
-      <Link href="https://storybook.js.org/docs/essentials/controls" target="_blank" withArrow>
+      <Link
+        href="https://storybook.js.org/docs/essentials/controls?ref=ui"
+        target="_blank"
+        withArrow
+      >
         Setup controls
       </Link>
     ) : (
@@ -81,7 +85,15 @@ export const ArgControl: FC<ArgControlProps> = ({ row, arg, updateArgs, isHovere
   }
   // row.name is a display name and not a suitable DOM input id or name - i might contain whitespace etc.
   // row.key is a hash key and therefore a much safer choice
-  const props = { name: key, argType: row, value: boxedValue.value, onChange, onBlur, onFocus };
+  const props = {
+    name: key,
+    storyId,
+    argType: row,
+    value: boxedValue.value,
+    onChange,
+    onBlur,
+    onFocus,
+  };
   const Control = Controls[control.type] || NoControl;
   return <Control {...props} {...control} controlType={control.type} />;
 };

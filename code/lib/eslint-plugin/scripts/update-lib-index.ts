@@ -5,11 +5,8 @@ This script updates `src/index.js` file from rule's meta data.
 */
 import fs from 'fs/promises';
 import path from 'path';
-import type { Options } from 'prettier';
-import { format } from 'prettier';
+import { format } from 'oxfmt';
 
-// @ts-expect-error this file has no types
-import prettierConfig from '../../../../prettier.config.mjs';
 import { categoryIds } from './utils/categories';
 import rules from './utils/rules';
 
@@ -37,9 +34,7 @@ ${categoryIds
 // rules
 ${rules.map((rule) => `import ${camelize(rule.name)} from './rules/${rule.name}'`).join('\n')}
 
-// export plugin
-export = {
-  configs: {
+export const configs = {
     // eslintrc configs
     ${categoryIds.map((categoryId) => `'${categoryId}': ${camelize(categoryId)}`).join(',\n')},
 
@@ -47,15 +42,17 @@ export = {
     ${categoryIds
       .map((categoryId) => `'flat/${categoryId}': ${camelize(`flat-${categoryId}`)}`)
       .join(',\n')},
-  },
-  rules: {
+};
+
+export const rules = {
     ${rules.map((rule) => `'${rule.name}': ${camelize(rule.name)}`).join(',\n')}
-  }
+};
+
+export default {
+  configs,
+  rules,
 }
 `;
-  const content = await format(rawContent, {
-    parser: 'typescript',
-    ...(prettierConfig as Options),
-  });
+  const { code: content } = await format('index.ts', rawContent, { singleQuote: true });
   await fs.writeFile(path.resolve(__dirname, '../src/index.ts'), content);
 }

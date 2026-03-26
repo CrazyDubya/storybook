@@ -1,4 +1,7 @@
-import { IconButton } from 'storybook/internal/components';
+import type { ComponentProps } from 'react';
+import React, { forwardRef } from 'react';
+
+import { Button } from 'storybook/internal/components';
 import type { StatusValue } from 'storybook/internal/types';
 
 import type { Theme } from '@emotion/react';
@@ -15,6 +18,9 @@ const withStatusColor = ({ theme, status }: { theme: Theme; status: StatusValue 
     color: {
       'status-value:pending': defaultColor,
       'status-value:success': theme.color.positive,
+      'status-value:new': theme.fgColor.accent,
+      'status-value:modified': theme.fgColor.accent,
+      'status-value:affected': theme.fgColor.accent,
       'status-value:error': theme.color.negative,
       'status-value:warning': theme.color.warning,
       'status-value:unknown': defaultColor,
@@ -26,7 +32,9 @@ export const StatusLabel = styled.div<{ status: StatusValue }>(withStatusColor, 
   margin: 3,
 });
 
-export const StatusButton = styled(IconButton)<{
+export type StatusButtonProps = ComponentProps<typeof StyledButton>;
+
+const StyledButton = styled(Button)<{
   height?: number;
   width?: number;
   status: StatusValue;
@@ -50,17 +58,20 @@ export const StatusButton = styled(IconButton)<{
     },
 
     '[data-selected="true"] &': {
-      background: theme.color.secondary,
-      boxShadow: `0 0 5px 5px ${theme.color.secondary}`,
+      background:
+        theme.base === 'dark' ? darken(0.18, theme.color.secondary) : theme.color.secondary,
+      boxShadow: `0 0 5px 5px ${theme.base === 'dark' ? darken(0.18, theme.color.secondary) : theme.color.secondary}`,
 
       '&:hover': {
-        background: lighten(0.1, theme.color.secondary),
+        background:
+          theme.base === 'dark' ? darken(0.1, theme.color.secondary) : theme.color.secondary,
       },
     },
 
     '&:focus': {
       color: theme.color.secondary,
       borderColor: theme.color.secondary,
+      outlineOffset: -2,
 
       '&:not(:focus-visible)': {
         borderColor: 'transparent',
@@ -75,3 +86,8 @@ export const StatusButton = styled(IconButton)<{
       },
     }
 );
+
+export const StatusButton = forwardRef<HTMLButtonElement, StatusButtonProps>((props, ref) => {
+  return <StyledButton variant="ghost" padding="small" {...props} ref={ref} />;
+});
+StatusButton.displayName = 'StatusButton';

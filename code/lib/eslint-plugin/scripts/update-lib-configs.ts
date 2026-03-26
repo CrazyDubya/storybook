@@ -1,13 +1,10 @@
 /*
 This script updates `lib/configs/*.js` files from rule's meta data.
 */
-import fs from 'fs/promises';
-import path from 'path';
-import type { Options } from 'prettier';
-import { format } from 'prettier';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
-// @ts-expect-error this file has no types
-import prettierConfig from '../../../../prettier.config.mjs';
+import { format } from 'oxfmt';
 import type { TCategory } from './utils/categories';
 import { categories } from './utils/categories';
 import {
@@ -26,7 +23,7 @@ function formatCategory(category: TCategory) {
       * This file has been automatically generated,
       * in order to update its content, execute "yarn update-rules" or rebuild this package.
       */
-      export = {
+      export default {
         plugins: [
           'storybook'
         ],
@@ -45,11 +42,14 @@ function formatCategory(category: TCategory) {
     * This file has been automatically generated,
     * in order to update its content, execute "yarn update-rules" or rebuild this package.
     */
-    export = {
+    export default {
       // This file is bundled in an index.js file at the root
       // so the reference is relative to the src directory
       extends: './configs/${extendsCategoryId}',
-      rules: ${formatRules(category.rules)}
+      overrides: [{
+        files: [${STORIES_GLOBS.join(', ')}],
+        rules: ${formatRules(category.rules)}
+      },]
     }
   `;
 }
@@ -64,10 +64,11 @@ export async function update() {
   await Promise.all(
     categories.map(async (category) => {
       const filePath = path.join(CONFIG_DIR, `${category.categoryId}.ts`);
-      const content = await format(formatCategory(category), {
-        parser: 'typescript',
-        ...(prettierConfig as Options),
-      });
+      const { code: content } = await format(
+        `${category.categoryId}.ts`,
+        formatCategory(category),
+        { singleQuote: true }
+      );
 
       await fs.writeFile(filePath, content);
     })

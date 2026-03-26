@@ -1,13 +1,10 @@
 /*
 This script updates `lib/configs/flat/*.js` files from rule's meta data.
 */
-import fs from 'fs/promises';
-import path from 'path';
-import type { Options } from 'prettier';
-import { format } from 'prettier';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
-// @ts-expect-error this file has no types
-import prettierConfig from '../../../../prettier.config.mjs';
+import { format } from 'oxfmt';
 import type { TCategory } from './utils/categories';
 import { categories } from './utils/categories';
 import {
@@ -21,18 +18,22 @@ import {
 function formatCategory(category: TCategory) {
   const extendsCategoryId = extendsCategories[category.categoryId];
   if (extendsCategoryId == null) {
-    return `/*
+    return `
+      import storybookPlugin from '../../index';
+
+      /*
       * IMPORTANT!
       * This file has been automatically generated,
       * in order to update its content, execute "yarn update-rules" or rebuild this package.
       */
-      export = [
+      export default [
         {
           name: 'storybook:${category.categoryId}:setup',
           plugins: {
             get storybook() {
-              return require('../../index')
-            }
+              // this getter could just be a direct import, but we need to use a getter to avoid circular references in the types
+              return storybookPlugin;
+            },
           }
         },
         {
@@ -55,30 +56,32 @@ function formatCategory(category: TCategory) {
     */
     import config from './${extendsCategoryId}'
 
-    export = [
+    export default [
       ...config,
       {
         name: 'storybook:${category.categoryId}:rules',
+        files: [${STORIES_GLOBS.join(', ')}],
         rules: ${formatRules(category.rules)}
       }
     ]
   `;
 }
 
-const FLAT_CONFIG_DIR = path.resolve(__dirname, '../src/configs/flat');
+const FLAT_CONFIG_DIR = path.resolve(import.meta.dirname, '../src/configs/flat');
 
 export async function update() {
   // setup config directory
-  await fs.mkdir(FLAT_CONFIG_DIR);
+  await fs.mkdir(FLAT_CONFIG_DIR, { recursive: true }).catch(() => {});
 
   // Update/add rule files
   await Promise.all(
     categories.map(async (category) => {
       const filePath = path.join(FLAT_CONFIG_DIR, `${category.categoryId}.ts`);
-      const content = await format(formatCategory(category), {
-        parser: 'typescript',
-        ...(prettierConfig as Options),
-      });
+      const { code: content } = await format(
+        `${category.categoryId}.ts`,
+        formatCategory(category),
+        { singleQuote: true }
+      );
 
       await fs.writeFile(filePath, content);
     })
